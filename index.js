@@ -7,6 +7,10 @@ app.use(express.json())
 const jobQueue = []
 
 app.post("/geninvoice", (req, res) => {
+  if (!req.body || Object.keys(req.body).length === 0) {
+    return res.status(400).json({ status: "Invalid or empty JSON payload" })
+  }
+
   jobQueue.push({ type: "geninvoice", content: req.body })
   res.status(200).send({ status: "Job received" })
 })
