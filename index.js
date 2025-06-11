@@ -1,3 +1,4 @@
+require("dotenv").config()
 const express = require("express")
 const app = express()
 
@@ -25,4 +26,9 @@ app.get("/newjob", (req, res) => {
   } else {
     res.status(200).json({ newJob: false })
   }
+})
+
+const PORT = process.env.PORT || 3001
+app.listen(PORT, () => {
+  console.log("Server listening on port ${PORT}")
 })
