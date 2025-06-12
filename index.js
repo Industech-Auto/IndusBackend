@@ -22,7 +22,7 @@ app.post("/geninvoice", (req, res) => {
   const job = jobQueue.shift()
   const filename = `quotation-${job.content.customer.replace(/\s+/g, "_")}-${Date.now()}.pdf`
   const outputPath = path.join(OUT_PATH, filename)
-  pdfgenerator(job.content, outputPath)
+  pdfgenerator(job.content, `./saved_pdfs/${filename}`)
   sendMail(CUSTOMER_MAIL, filename, outputPath)
 })
 
