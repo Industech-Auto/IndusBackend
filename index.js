@@ -9,6 +9,7 @@ const app = express()
 
 app.use(express.json())
 
+const OUT_PATH = path.join(__dirname, "saved_pdfs")
 const CUSTOMER_MAIL = process.env.MAIL
 const jobQueue = []
 
