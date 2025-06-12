@@ -1,10 +1,16 @@
 require("dotenv").config()
 const express = require("express")
+const pdfgenerator = require("./pdfgenerator")
+const path = require("path")
+const sendMail = require("./mailer")
+
 const app = express()
 
 app.use(express.json())
 
+const CUSTOMER_MAIL = "aziyan916@gmail.com"
 const jobQueue = []
+const OUT_PATH = path.join(__dirname, "saved_pdfs")
 
 app.post("/geninvoice", (req, res) => {
   if (!req.body || Object.keys(req.body).length === 0) {
@@ -13,6 +19,11 @@ app.post("/geninvoice", (req, res) => {
 
   jobQueue.push({ type: "geninvoice", content: req.body })
   res.status(200).send({ status: "Job received" })
+  const job = jobQueue.shift()
+  const filename = `quotation-${job.content.customer.replace(/\s+/g, "_")}-${Date.now()}.pdf`
+  const outputPath = path.join(OUT_PATH, filename)
+  pdfgenerator(job.content, outputPath)
+  sendMail(CUSTOMER_MAIL, filename, outputPath)
 })
 
 app.get("/listinvoice", (req, res) => {
