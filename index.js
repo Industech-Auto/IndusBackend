@@ -3,14 +3,14 @@ const express = require("express")
 const pdfgenerator = require("./pdfgenerator")
 const path = require("path")
 const sendMail = require("./mailer")
+require("dotenv").config()
 
 const app = express()
 
 app.use(express.json())
 
-const CUSTOMER_MAIL = "aziyan916@gmail.com"
+const CUSTOMER_MAIL = process.env.MAIL
 const jobQueue = []
-const OUT_PATH = path.join(__dirname, "saved_pdfs")
 
 app.post("/geninvoice", (req, res) => {
   if (!req.body || Object.keys(req.body).length === 0) {
