@@ -4,7 +4,7 @@ const pdfgenerator = require("./pdfgenerator")
 const path = require("path")
 const sendMail = require("./mailer")
 require("dotenv").config()
-const getDetails = require("./getInvoiceDetails")
+const { getDetails, formatDateIST } = require("./getInvoiceDetails")
 
 const app = express()
 
@@ -23,7 +23,7 @@ app.post("/geninvoice", (req, res) => {
   genQueue.push({ type: "geninvoice", content: req.body })
   res.status(200).send({ status: "Job received" })
   const job = genQueue.shift()
-  const filename = `quotation-${job.content.customer.replace(/\s+/g, "_")}-${Date.now()}.pdf`
+  const filename = `quotation-${job.content.customer.replace(/\s+/g, "_")}-${formatDateIST(Date.now())}.pdf`
   const outputPath = path.join(DIRECTORY_PATH, filename)
   pdfgenerator(job.content, `./saved_pdfs/${filename}`)
   sendMail(CUSTOMER_MAIL, filename, outputPath)
