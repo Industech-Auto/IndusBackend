@@ -4,13 +4,14 @@ const pdfgenerator = require("./pdfgenerator")
 const path = require("path")
 const sendMail = require("./mailer")
 require("dotenv").config()
+const getDetails = require("./getInvoiceDetails")
 
 const app = express()
 
 app.use(express.json())
 
-const OUT_PATH = path.join(__dirname, "saved_pdfs")
-const CUSTOMER_MAIL = process.env.MAIL
+const DIRECTORY_PATH = path.join(__dirname, "saved_pdfs")
+const CUSTOMER_MAIL = process.env.MAIL || "aziyan916@gmail.com"
 const jobQueue = []
 
 app.post("/geninvoice", (req, res) => {
@@ -18,18 +19,21 @@ app.post("/geninvoice", (req, res) => {
     return res.status(400).json({ status: "Invalid or empty JSON payload" })
   }
 
-  jobQueue.push({ type: "geninvoice", content: req.body })
+  const genQueue = []
+  genQueue.push({ type: "geninvoice", content: req.body })
   res.status(200).send({ status: "Job received" })
-  const job = jobQueue.shift()
+  const job = genQueue.shift()
   const filename = `quotation-${job.content.customer.replace(/\s+/g, "_")}-${Date.now()}.pdf`
-  const outputPath = path.join(OUT_PATH, filename)
+  const outputPath = path.join(DIRECTORY_PATH, filename)
   pdfgenerator(job.content, `./saved_pdfs/${filename}`)
   sendMail(CUSTOMER_MAIL, filename, outputPath)
 })
 
-app.get("/listinvoice", (req, res) => {
-  jobQueue.push({ type: "listinvoice" })
-  res.status(200).send({ status: "Job received" })
+app.get("/listinvoice", async (req, res) => {
+  //jobQueue.push({ type: "listinvoice" })
+
+  const list = await getDetails(DIRECTORY_PATH)
+  res.status(200).send({ details: list })
 })
 
 app.get("/getinvoice", (req, res) => {
