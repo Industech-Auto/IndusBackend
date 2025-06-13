@@ -54,6 +54,24 @@ app.get("/newjob", (req, res) => {
   }
 })
 
+app.delete("/delete-all-pdfs", (req, res) => {
+  const directory = path.join(__dirname, "saved_pdfs")
+
+  fs.readdir(directory, (err, files) => {
+    if (err) {
+      return res.status(500).send({ error: "Failed to read directory" })
+    }
+
+    for (const file of files) {
+      fs.unlink(path.join(directory, file), (err) => {
+        if (err) console.error(`Error deleting ${file}:`, err)
+      })
+    }
+
+    res.send({ status: "All files deleted" })
+  })
+})
+
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`)
