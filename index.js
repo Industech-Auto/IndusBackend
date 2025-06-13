@@ -9,6 +9,7 @@ const { getDetails, formatDateIST } = require("./getInvoiceDetails")
 const app = express()
 
 app.use(express.json())
+app.use("/pdfs", express.static("./saved_pdfs"))
 
 const DIRECTORY_PATH = path.join(__dirname, "saved_pdfs")
 const CUSTOMER_MAIL = process.env.MAIL || "aziyan916@gmail.com"
@@ -36,9 +37,12 @@ app.get("/listinvoice", async (req, res) => {
   res.status(200).send({ details: list })
 })
 
-app.get("/getinvoice", (req, res) => {
-  jobQueue.push({ type: "getinvoice" })
-  res.status(200).send({ status: "Job received" })
+app.get("/getinvoice", async (req, res) => {
+  //jobQueue.push({ type: "getinvoice" })
+
+  return res.status(200).send({
+    status: "Job recieved",
+  })
 })
 
 app.get("/newjob", (req, res) => {
