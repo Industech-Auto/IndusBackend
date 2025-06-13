@@ -5,6 +5,7 @@ const path = require("path")
 const sendMail = require("./mailer")
 require("dotenv").config()
 const { getDetails, formatDateIST } = require("./getInvoiceDetails")
+const fs = require("fs")
 
 const app = express()
 
