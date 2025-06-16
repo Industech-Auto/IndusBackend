@@ -13,7 +13,7 @@ app.use(express.json())
 app.use("/pdfs", express.static("./saved_pdfs"))
 
 const DIRECTORY_PATH = path.join(__dirname, "saved_pdfs")
-const CUSTOMER_MAIL = process.env.MAIL || "aziyan916@gmail.com"
+const CUSTOMER_MAIL = process.env.MAIL || "sonuabin7@gmail.com"
 const jobQueue = []
 
 app.post("/geninvoice", (req, res) => {
@@ -25,7 +25,7 @@ app.post("/geninvoice", (req, res) => {
   genQueue.push({ type: "geninvoice", content: req.body })
   res.status(200).send({ status: "Job received" })
   const job = genQueue.shift()
-  const filename = `quotation-${job.content.customer.replace(/\s+/g, "_")}-${formatDateIST(Date.now())}.pdf`
+  const filename = `quotation-${job.content.recipientName?.replace(/\s+/g, "_")}-${formatDateIST(Date.now())}.pdf`
   const outputPath = path.join(DIRECTORY_PATH, filename)
   pdfgenerator(job.content, `./saved_pdfs/${filename}`)
   sendMail(CUSTOMER_MAIL, filename, outputPath)
