@@ -15,7 +15,6 @@ app.use(express.json())
 app.use("/pdfs", express.static("./saved_pdfs"))
 
 const DIRECTORY_PATH = path.join(__dirname, "saved_pdfs")
-const CUSTOMER_MAIL = process.env.MAIL || "sonuabin7@gmail.com"
 const jobQueue = []
 
 app.post("/genquotation", (req, res) => {
@@ -30,7 +29,7 @@ app.post("/genquotation", (req, res) => {
   const filename = `quotation-${job.content.recipientName?.replace(/\s+/g, "_")}-${formatDateIST(Date.now())}.pdf`
   const outputPath = path.join(DIRECTORY_PATH, filename)
   quotationGenerator(job.content, `./saved_pdfs/${filename}`)
-  sendMail(CUSTOMER_MAIL, filename, outputPath)
+  sendMail(job.content.email, filename, outputPath)
 })
 
 app.get("/listinvoice", async (req, res) => {
