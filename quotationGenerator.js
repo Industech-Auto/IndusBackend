@@ -6,10 +6,6 @@ function generateQuotationPDF(data, outputPath) {
   const doc = new PDFDocument({ margin: 50 })
   doc.pipe(fs.createWriteStream(outputPath))
 
-  const pageWidth = doc.page.width
-  const margin = 50
-  const usableWidth = pageWidth - 2 * margin
-
   // Load original image dimensions
   const logoWidth = 65
   const buffer = fs.readFileSync("public/logob.png")
@@ -44,26 +40,18 @@ function generateQuotationPDF(data, outputPath) {
 
   //Main body//////////////////////////////////////////
   doc.y = headerLine + 13
-  doc.text(`Date: ${data.date}`, { align: "right" })
 
   let th = doc.y + 5
 
   doc.font("Helvetica-Bold")
-  doc.text("Quotation No", { align: "left" }, th)
-  doc.text("Expiry", { align: "center" }, th)
-  doc.text("Salesperson", { align: "right" }, th)
+  doc.text("Quotation No", { align: "center" }, th)
+  doc.text(`Date: ${data.date}`, { align: "right" }, th)
 
   doc.font("Helvetica")
-  doc.text(data.quotationNo, { align: "left" }, th + 10)
-  doc.text(data.expiryDate, { align: "center" }, th + 10)
-  doc.text(data.salesperson, { align: "right" }, th + 10)
+  doc.text(data.quotationNo, { align: "center" }, th + 10)
 
-  doc
-    .moveDown()
-    .fontSize(10)
-    .text(
-      `To,\n${data.recipientName}\n${data.recipientAddress}\nGSTIN: ${data.recipientGSTIN}`,
-    )
+  doc.y = th
+  doc.fontSize(10).text(`To,\n${data.recipientName}\n${data.recipientAddress}`)
 
   doc.moveDown()
   doc.text("We are pleased to quote our best prices for the following items:", {
@@ -71,38 +59,55 @@ function generateQuotationPDF(data, outputPath) {
   })
 
   // Table Header
-  const tableTop = doc.y + 20
+  const rectTop = doc.y + 12
+  const tableTop = rectTop + 10
   doc.font("Helvetica-Bold")
-  doc.text("S.No", 50, tableTop)
-  doc.text("Item Name", 90, tableTop)
-  doc.text("HSN", 230, tableTop)
-  doc.text("Qty", 270, tableTop)
-  doc.text("Unit Price", 310, tableTop)
-  doc.text("Disc.%", 380, tableTop)
-  doc.text("Taxes", 430, tableTop)
+  doc.text("S.No", 52, tableTop)
+  doc.text("Material Description", 90, tableTop)
+  doc.text("HSN", 270, tableTop)
+  doc.text("Qty", 330, tableTop)
+  doc.text("Unit Price", 410, tableTop)
   doc.text("Amount", 500, tableTop)
+  doc
+    .strokeColor("#000000")
+    .strokeOpacity(30)
+    .moveTo(50, tableTop + 15)
+    .lineTo(560, tableTop + 15)
+    .stroke()
 
   doc.font("Helvetica")
-  let y = tableTop + 15
+  let y = tableTop + 20
   for (let i = 0; i < data.items.length; i++) {
     const item = data.items[i]
-    doc.text(i + 1, 50, y)
+    doc.text(`${i + 1}`, 54, y)
     doc.text(item.name, 90, y, { width: 130 })
-    doc.text(item.hsn, 230, y)
-    doc.text(item.qty.toString(), 270, y)
-    doc.text(`Rs. ${item.unitPrice.toFixed(2)}`, 310, y)
-    doc.text(`${item.discount?.toFixed(2)}%`, 380, y)
-    doc.text(`${item.tax}%`, 430, y)
+    doc.text(item.hsn, 270, y)
+    doc.text(item.qty.toString(), 330, y)
+    doc.text(`Rs. ${item.unitPrice.toFixed(2)}`, 410, y)
     doc.text(`Rs. ${item.amount.toFixed(2)}`, 500, y)
     y += 20
   }
 
-  doc.strokeColor("#00000").moveTo(50, y).lineTo(560, y).stroke()
+  const rectHeight = y - rectTop // Height from top of header to bottom of table
+  doc.save() // Save current graphic state
+  doc.fillColor("#313131").opacity(0.1)
+  doc.rect(50, rectTop, 510, rectHeight).fill()
+  doc.restore() // Restore opacity and fill color
+
+  // Now draw final bottom line
+  doc.strokeColor("#000000").moveTo(50, y).lineTo(560, y).stroke()
 
   y += 10
   doc.text(`Untaxed Amount: Rs. ${data.untaxedAmount?.toFixed(2)}`, 360, y, {
     align: "right",
   })
+  y += 15
+  doc.text(
+    `Installation charges: Rs. ${data.installationCharge?.toFixed(2)}`,
+    360,
+    y,
+    { align: "right" },
+  )
   y += 15
   doc.text(`SGST: Rs. ${data.sgst?.toFixed(2)}`, 360, y, { align: "right" })
   y += 15
@@ -127,10 +132,10 @@ function generateQuotationPDF(data, outputPath) {
 
   // Footer
   y += 30
-  doc.text("Payment terms: Immediate Payment", 50, y)
-  y += 20
   doc.text("Thank you,\nIndustech Automations,\nMadurai.", 50, y)
-
+  y = doc.page.height - doc.page.margins.bottom - 20
+  doc.text("Email: industech@gmail.com", 50, y)
+  doc.text("Contact: 1234567890", { align: "right" }, y)
   doc.end()
 }
 

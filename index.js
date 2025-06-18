@@ -1,14 +1,16 @@
 require("dotenv").config()
 const express = require("express")
-const pdfgenerator = require("./pdfgenerator")
+const quotationGenerator = require("./quotationGenerator")
 const path = require("path")
 const sendMail = require("./mailer")
 require("dotenv").config()
 const { getDetails, formatDateIST } = require("./getInvoiceDetails")
 const fs = require("fs")
+const cors = require("cors")
 
 const app = express()
 
+app.use(cors())
 app.use(express.json())
 app.use("/pdfs", express.static("./saved_pdfs"))
 
@@ -16,7 +18,7 @@ const DIRECTORY_PATH = path.join(__dirname, "saved_pdfs")
 const CUSTOMER_MAIL = process.env.MAIL || "sonuabin7@gmail.com"
 const jobQueue = []
 
-app.post("/geninvoice", (req, res) => {
+app.post("/genquotation", (req, res) => {
   if (!req.body || Object.keys(req.body).length === 0) {
     return res.status(400).json({ status: "Invalid or empty JSON payload" })
   }
@@ -27,7 +29,7 @@ app.post("/geninvoice", (req, res) => {
   const job = genQueue.shift()
   const filename = `quotation-${job.content.recipientName?.replace(/\s+/g, "_")}-${formatDateIST(Date.now())}.pdf`
   const outputPath = path.join(DIRECTORY_PATH, filename)
-  pdfgenerator(job.content, `./saved_pdfs/${filename}`)
+  quotationGenerator(job.content, `./saved_pdfs/${filename}`)
   sendMail(CUSTOMER_MAIL, filename, outputPath)
 })
 
