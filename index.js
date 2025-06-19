@@ -1,6 +1,7 @@
 require("dotenv").config()
 const express = require("express")
 const quotationGenerator = require("./quotationGenerator")
+const invoiceGenerator = require("./invoiceGenerator")
 const path = require("path")
 const sendMail = require("./mailer")
 require("dotenv").config()
@@ -14,7 +15,8 @@ app.use(cors())
 app.use(express.json())
 app.use("/pdfs", express.static("./saved_pdfs"))
 
-const DIRECTORY_PATH = path.join(__dirname, "saved_pdfs")
+const QUOTATION_DIRECTORY_PATH = path.join(__dirname, "saved_pdfs")
+const INVOICE_DIRECTORY_PATH = path.join(__dirname, "saved_invoice_pdfs")
 const jobQueue = []
 
 app.post("/genquotation", (req, res) => {
@@ -23,12 +25,27 @@ app.post("/genquotation", (req, res) => {
   }
 
   const genQueue = []
-  genQueue.push({ type: "geninvoice", content: req.body })
+  genQueue.push({ type: "genquotation", content: req.body })
   res.status(200).send({ status: "Job received" })
   const job = genQueue.shift()
   const filename = `quotation-${job.content.recipientName?.replace(/\s+/g, "_")}-${formatDateIST(Date.now())}.pdf`
-  const outputPath = path.join(DIRECTORY_PATH, filename)
+  const outputPath = path.join(QUOTATION_DIRECTORY_PATH, filename)
   quotationGenerator(job.content, `./saved_pdfs/${filename}`)
+  sendMail(job.content.email, filename, outputPath)
+})
+
+app.post("/geninvoice", (req, res) => {
+  if (!req.body || Object.keys(req.body).length === 0) {
+    return res.status(400).json({ status: "Invalid or empty JSON payload" })
+  }
+
+  const genInvoiceQueue = []
+  genInvoiceQueue.push({ type: "geninvoice", content: req.body })
+  res.status(200).send({ status: "Job received" })
+  const job = genInvoiceQueue.shift()
+  const filename = `invoice-${job.content.recipientName?.replace(/\s+/g, "_")}-${formatDateIST(Date.now())}.pdf`
+  const outputPath = path.join(INVOICE_DIRECTORY_PATH, filename)
+  invoiceGenerator(job.content, `./saved_invoice_pdfs/${filename}`)
   sendMail(job.content.email, filename, outputPath)
 })
 

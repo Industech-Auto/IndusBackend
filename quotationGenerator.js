@@ -3,7 +3,7 @@ const fs = require("fs")
 const sizeOf = require("image-size").default
 
 function generateQuotationPDF(data, outputPath) {
-  const doc = new PDFDocument({ margin: 50 })
+  const doc = new PDFDocument({ size: "A4", margin: 50 })
   doc.pipe(fs.createWriteStream(outputPath))
 
   // Load original image dimensions
