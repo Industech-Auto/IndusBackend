@@ -24,9 +24,8 @@ app.post("/genquotation", async (req, res) => {
     return res.status(400).json({ status: "Invalid or empty JSON payload" })
   }
 
-  res.status(200).send({ status: "Job received" })
   const job = { content: req.body }
-  const filename = `quotation-${job.content.recipientName?.replace(/\s+/g, "_")}-${formatDateIST(Date.now())}.pdf`
+  const filename = `qu-${job.content.recipientName?.replace(/\s+/g, "_")}-${formatDateIST(Date.now())}.pdf`
   const outputPath = path.join(QUOTATION_DIRECTORY_PATH, filename)
   try {
     await quotationGenerator(job.content, outputPath)
@@ -35,7 +34,9 @@ app.post("/genquotation", async (req, res) => {
     await sendMail(job.content.email, filename, outputPath)
 
     console.log("Checking file before uploadPDF:", fs.existsSync(outputPath))
-    uploadPDF(outputPath, `./quotations/${filename}`)
+    await uploadPDF(outputPath, `quotations/${filename}`)
+    //makePublic(`quotations/${filename}`)
+    res.status(200).send({ status: "Job received" })
   } catch (err) {
     console.error("Job processing failed:", err)
   }
@@ -46,14 +47,15 @@ app.post("/geninvoice", async (req, res) => {
     return res.status(400).json({ status: "Invalid or empty JSON payload" })
   }
 
-  res.status(200).send({ status: "Job received" })
   const job = { content: req.body }
-  const filename = `invoice-${job.content.recipientName?.replace(/\s+/g, "_")}-${formatDateIST(Date.now())}.pdf`
+  const filename = `in-${job.content.customer?.replace(/\s+/g, "_")}-${formatDateIST(Date.now())}.pdf`
   const outputPath = path.join(INVOICE_DIRECTORY_PATH, filename)
   try {
     await invoiceGenerator(job.content, outputPath)
     await sendMail(job.content.email, filename, outputPath)
-    await uploadPDF(outputPath, `./invoices/${filename}`)
+    await uploadPDF(outputPath, `invoices/${filename}`)
+    //makePublic(`invoices/${filename}`)
+    res.status(200).send({ status: "Job received" })
   } catch (err) {
     console.error("Failed invoice gen or sendMail", err)
   }
