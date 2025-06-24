@@ -17,48 +17,55 @@ const PDFDocument = require("pdfkit")
 const fs = require("fs")
 
 function generateInvoicePDF(data, outputPath) {
-  const doc = new PDFDocument({ size: "A4", margin: 30 })
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ size: "A4", margin: 30 })
 
-  doc.pipe(fs.createWriteStream(outputPath))
+    const stream = fs.createWriteStream(outputPath)
 
-  const calculatedData = calculateTotals(data) // --- Draw First Page Content ---
+    doc.pipe(stream)
 
-  let y = doc.page.margins.top
+    const calculatedData = calculateTotals(data) // --- Draw First Page Content ---
 
-  y = generateHeaderAndInvoiceDetails(doc, calculatedData, y)
+    let y = doc.page.margins.top
 
-  y = generateBuyerDetails(doc, calculatedData, y)
+    y = generateHeaderAndInvoiceDetails(doc, calculatedData, y)
 
-  y = generateInvoiceTable(doc, calculatedData, y)
+    y = generateBuyerDetails(doc, calculatedData, y)
 
-  const pageBottom = doc.page.height - doc.page.margins.bottom // --- Footer and Tax Analysis Placement Logic ---
+    y = generateInvoiceTable(doc, calculatedData, y)
 
-  const footerHeight = 180 // Combined height for totals and declaration boxes
+    const pageBottom = doc.page.height - doc.page.margins.bottom // --- Footer and Tax Analysis Placement Logic ---
 
-  const taxAnalysisHeight =
-    40 + (calculatedData.calculated.hsnGroups.length + 2) * 20 // Check if footer fits on the current page. If not, add new page for it.
+    const footerHeight = 180 // Combined height for totals and declaration boxes
 
-  if (y + footerHeight > pageBottom) {
-    doc.addPage()
+    const taxAnalysisHeight =
+      40 + (calculatedData.calculated.hsnGroups.length + 2) * 20 // Check if footer fits on the current page. If not, add new page for it.
 
-    y = doc.page.margins.top
+    if (y + footerHeight > pageBottom) {
+      doc.addPage()
 
-    y = generateContinuationHeader(doc, data, y)
-  }
+      y = doc.page.margins.top
 
-  y = generateFooter(doc, calculatedData, y) // AFTER placing the footer, check if tax analysis fits. If not, add new page for it.
+      y = generateContinuationHeader(doc, data, y)
+    }
 
-  if (y + taxAnalysisHeight > pageBottom) {
-    doc.addPage()
+    y = generateFooter(doc, calculatedData, y) // AFTER placing the footer, check if tax analysis fits. If not, add new page for it.
 
-    y = doc.page.margins.top
+    if (y + taxAnalysisHeight > pageBottom) {
+      doc.addPage()
 
-    y = generateContinuationHeader(doc, data, y, true) // Mark as tax analysis page
-  }
+      y = doc.page.margins.top
 
-  generateTaxAnalysis(doc, calculatedData, y + 15)
+      y = generateContinuationHeader(doc, data, y, true) // Mark as tax analysis page
+    }
 
-  doc.end()
+    generateTaxAnalysis(doc, calculatedData, y + 15)
+
+    doc.end()
+
+    stream.on("finish", () => resolve())
+    stream.on("error", reject)
+  })
 }
 
 function calculateTotals(data) {
@@ -67,8 +74,6 @@ function calculateTotals(data) {
       "Invalid invoice data: 'data.invoice.items' must be an array.",
     )
   }
-
-  
 
   let subtotal = 0
 

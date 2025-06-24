@@ -18,7 +18,6 @@ app.use("/pdfs", express.static("./saved_pdfs"))
 
 const QUOTATION_DIRECTORY_PATH = path.join(__dirname, "saved_pdfs")
 const INVOICE_DIRECTORY_PATH = path.join(__dirname, "saved_invoice_pdfs")
-const jobQueue = []
 
 app.post("/genquotation", async (req, res) => {
   if (!req.body || Object.keys(req.body).length === 0) {
@@ -42,7 +41,7 @@ app.post("/genquotation", async (req, res) => {
   }
 })
 
-app.post("/geninvoice", (req, res) => {
+app.post("/geninvoice", async (req, res) => {
   if (!req.body || Object.keys(req.body).length === 0) {
     return res.status(400).json({ status: "Invalid or empty JSON payload" })
   }
@@ -53,32 +52,17 @@ app.post("/geninvoice", (req, res) => {
   const job = genInvoiceQueue.shift()
   const filename = `invoice-${job.content.recipientName?.replace(/\s+/g, "_")}-${formatDateIST(Date.now())}.pdf`
   const outputPath = path.join(INVOICE_DIRECTORY_PATH, filename)
-  invoiceGenerator(job.content, `./saved_invoice_pdfs/${filename}`)
-  sendMail(job.content.email, filename, outputPath)
+  try {
+    await invoiceGenerator(job.content, `./saved_invoice_pdfs/${filename}`)
+    await sendMail(job.content.email, filename, outputPath)
+  } catch (err) {
+    console.error("Failed invoice gen or sendMail", err)
+  }
 })
 
 app.get("/listinvoice", async (req, res) => {
-  //jobQueue.push({ type: "listinvoice" })
-
   const list = await getDetails(DIRECTORY_PATH)
   res.status(200).send({ details: list })
-})
-
-app.get("/getinvoice", async (req, res) => {
-  //jobQueue.push({ type: "getinvoice" })
-
-  return res.status(200).send({
-    status: "Job recieved",
-  })
-})
-
-app.get("/newjob", (req, res) => {
-  if (jobQueue.length > 0) {
-    const job = jobQueue.shift()
-    res.status(200).json({ newJob: true, job })
-  } else {
-    res.status(200).json({ newJob: false })
-  }
 })
 
 app.delete("/delete-all-pdfs", (req, res) => {
