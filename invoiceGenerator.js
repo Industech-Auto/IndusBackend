@@ -1,17 +1,3 @@
-/**
-
- * @module InvoiceGenerator
-
- * This module exports a function to generate a PDF invoice using pdfkit.
-
- * CHANGE LOG:
-
- * - Refined the Tax Analysis header to prevent vertical lines from cutting through the
-
- * "Central Tax" and "State Tax" titles, creating a cleaner look as requested.
-
- */
-
 const PDFDocument = require("pdfkit")
 
 const fs = require("fs")

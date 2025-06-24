@@ -16,7 +16,7 @@ app.use(cors())
 app.use(express.json())
 app.use("/pdfs", express.static("./saved_pdfs"))
 
-const QUOTATION_DIRECTORY_PATH = path.join(__dirname, "saved_pdfs")
+const QUOTATION_DIRECTORY_PATH = path.join(__dirname, "saved_quotation_pdfs")
 const INVOICE_DIRECTORY_PATH = path.join(__dirname, "saved_invoice_pdfs")
 
 app.post("/genquotation", async (req, res) => {
@@ -35,7 +35,7 @@ app.post("/genquotation", async (req, res) => {
     await sendMail(job.content.email, filename, outputPath)
 
     console.log("Checking file before uploadPDF:", fs.existsSync(outputPath))
-    uploadPDF(outputPath, `./invoices/${filename}`)
+    uploadPDF(outputPath, `./quotations/${filename}`)
   } catch (err) {
     console.error("Job processing failed:", err)
   }
@@ -46,15 +46,14 @@ app.post("/geninvoice", async (req, res) => {
     return res.status(400).json({ status: "Invalid or empty JSON payload" })
   }
 
-  const genInvoiceQueue = []
-  genInvoiceQueue.push({ type: "geninvoice", content: req.body })
   res.status(200).send({ status: "Job received" })
-  const job = genInvoiceQueue.shift()
+  const job = { content: req.body }
   const filename = `invoice-${job.content.recipientName?.replace(/\s+/g, "_")}-${formatDateIST(Date.now())}.pdf`
   const outputPath = path.join(INVOICE_DIRECTORY_PATH, filename)
   try {
-    await invoiceGenerator(job.content, `./saved_invoice_pdfs/${filename}`)
+    await invoiceGenerator(job.content, outputPath)
     await sendMail(job.content.email, filename, outputPath)
+    await uploadPDF(outputPath, `./invoices/${filename}`)
   } catch (err) {
     console.error("Failed invoice gen or sendMail", err)
   }
