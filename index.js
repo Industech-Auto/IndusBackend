@@ -2,6 +2,7 @@ require("dotenv").config()
 const express = require("express")
 const quotationGenerator = require("./quotationGenerator")
 const invoiceGenerator = require("./invoiceGenerator")
+const { uploadPDF, makePublic } = require("./firebase")
 const path = require("path")
 const sendMail = require("./mailer")
 require("dotenv").config()
@@ -32,6 +33,7 @@ app.post("/genquotation", (req, res) => {
   const outputPath = path.join(QUOTATION_DIRECTORY_PATH, filename)
   quotationGenerator(job.content, `./saved_pdfs/${filename}`)
   sendMail(job.content.email, filename, outputPath)
+  uploadPDF(`./saved_pdfs/${filename}`, `./invoices/${filename}`)
 })
 
 app.post("/geninvoice", (req, res) => {

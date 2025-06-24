@@ -68,29 +68,7 @@ function calculateTotals(data) {
     )
   }
 
-  if (data.invoice.installation && data.invoice.installation.amount > 0) {
-    const installationItem = {
-      name: "Installation & Commissioning Charges",
-
-      hsn: data.invoice.installation.hsn || "998739",
-
-      qty: 1,
-
-      unitPrice: data.invoice.installation.amount,
-
-      taxRate: data.invoice.installation.taxRate || 18,
-
-      discount: 0,
-    }
-
-    const alreadyExists = data.invoice.items.some(
-      (item) => item.name === installationItem.name,
-    )
-
-    if (!alreadyExists) {
-      data.invoice.items.push(installationItem)
-    }
-  }
+  
 
   let subtotal = 0
 
@@ -552,6 +530,12 @@ function generateFooter(doc, data, y) {
 
       width: 90,
     })
+
+  doc.font("Helvetica-Bold").text("Installation", totalsRightColX + 5, y + 45)
+  doc.font("Helvetica").text(data.Installation, totalsRightColX + 100, y + 45, {
+    align: "right",
+    width: 90,
+  })
 
   doc.font("Helvetica-Bold").text("Total", totalsRightColX + 5, y + 55)
 
