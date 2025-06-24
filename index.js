@@ -20,20 +20,26 @@ const QUOTATION_DIRECTORY_PATH = path.join(__dirname, "saved_pdfs")
 const INVOICE_DIRECTORY_PATH = path.join(__dirname, "saved_invoice_pdfs")
 const jobQueue = []
 
-app.post("/genquotation", (req, res) => {
+app.post("/genquotation", async (req, res) => {
   if (!req.body || Object.keys(req.body).length === 0) {
     return res.status(400).json({ status: "Invalid or empty JSON payload" })
   }
 
-  const genQueue = []
-  genQueue.push({ type: "genquotation", content: req.body })
   res.status(200).send({ status: "Job received" })
-  const job = genQueue.shift()
+  const job = { content: req.body }
   const filename = `quotation-${job.content.recipientName?.replace(/\s+/g, "_")}-${formatDateIST(Date.now())}.pdf`
   const outputPath = path.join(QUOTATION_DIRECTORY_PATH, filename)
-  quotationGenerator(job.content, `./saved_pdfs/${filename}`)
-  sendMail(job.content.email, filename, outputPath)
-  uploadPDF(`./saved_pdfs/${filename}`, `./invoices/${filename}`)
+  try {
+    await quotationGenerator(job.content, outputPath)
+
+    console.log("Checking file before sendMail:", fs.existsSync(outputPath))
+    await sendMail(job.content.email, filename, outputPath)
+
+    console.log("Checking file before uploadPDF:", fs.existsSync(outputPath))
+    uploadPDF(outputPath, `./invoices/${filename}`)
+  } catch (err) {
+    console.error("Job processing failed:", err)
+  }
 })
 
 app.post("/geninvoice", (req, res) => {
