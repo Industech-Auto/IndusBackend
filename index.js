@@ -25,7 +25,10 @@ app.post("/genquotation", async (req, res) => {
   }
 
   const job = { content: req.body }
-  const filename = `qu-${job.content.recipientName?.replace(/\s+/g, "_")}-${formatDateIST(Date.now())}.pdf`
+  const sanitizedName = job.content.customer?.name
+    ?.replace(/[\\/:"*?<>|]/g, "_")
+    .replace(/\s+/g, "_")
+  const filename = `qu-${sanitizedName}-${formatDateIST(Date.now())}.pdf`
   const outputPath = path.join(QUOTATION_DIRECTORY_PATH, filename)
   try {
     await quotationGenerator(job.content, outputPath)
@@ -48,12 +51,19 @@ app.post("/geninvoice", async (req, res) => {
   }
 
   const job = { content: req.body }
-  const filename = `in-${job.content.customer?.replace(/\s+/g, "_")}-${formatDateIST(Date.now())}.pdf`
+  const sanitizedName = job.content.customer?.name
+    ?.replace(/[\\/:"*?<>|]/g, "_")
+    .replace(/\s+/g, "_")
+  const filename = `in-${sanitizedName}-${formatDateIST(Date.now())}.pdf`
+  console.log("name", filename)
   const outputPath = path.join(INVOICE_DIRECTORY_PATH, filename)
   try {
     await invoiceGenerator(job.content, outputPath)
+    console.log("generated")
     await sendMail(job.content.email, filename, outputPath)
+    console.log("mail send")
     await uploadPDF(outputPath, `invoices/${filename}`)
+    console.log("upload done")
     //makePublic(`invoices/${filename}`)
     res.status(200).send({ status: "Job received" })
   } catch (err) {
