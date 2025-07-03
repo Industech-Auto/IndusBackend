@@ -27,9 +27,7 @@ async function uploadPDF(localPath, destPathInBucket) {
 async function makePublic(filePath) {
   const file = bucket.file(filePath)
   await file.makePublic()
-  console.log(
-    `Public URL: https://storage.googleapis.com/${bucket.name}/${filePath}`,
-  )
+
   return {
     publicURL: `https://storage.googleapis.com/${bucket.name}/${filePath}`,
   }

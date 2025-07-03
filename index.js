@@ -64,8 +64,8 @@ app.post("/geninvoice", async (req, res) => {
     console.log("mail send")
     await uploadPDF(outputPath, `invoices/${filename}`)
     console.log("upload done")
-    //makePublic(`invoices/${filename}`)
-    res.status(200).send({ status: "Job received" })
+    const url = makePublic(`invoices/${filename}`)
+    res.status(200).send({ status: "Job received", url: url })
   } catch (err) {
     console.error("Failed invoice gen or sendMail", err)
   }
