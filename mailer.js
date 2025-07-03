@@ -4,16 +4,18 @@ const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: "abinyt1234@gmail.com",
-    pass: "wpaa onru gorg rncs",
+    pass: "swlp nwpn klxq evjm",
   },
 })
 
-function sendMail(customerMail, filename, filepath) {
+function sendMail(customerMail, filename, filepath, sub = true) {
   return new Promise((resolve, reject) => {
     const mailOptions = {
       from: "abinyt1234@gmail.com",
       to: customerMail,
-      subject: "Your Requested File",
+      subject: sub
+        ? "Quotation from IndusTech Automations"
+        : "Invoice from IndusTech Automations",
       text: "Please find the attached file.",
       attachments: [
         {

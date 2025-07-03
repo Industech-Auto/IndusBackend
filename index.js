@@ -60,7 +60,7 @@ app.post("/geninvoice", async (req, res) => {
   try {
     await invoiceGenerator(job.content, outputPath)
     console.log("generated")
-    await sendMail(job.content.email, filename, outputPath)
+    await sendMail(job.content.email, filename, outputPath, false)
     console.log("mail send")
     await uploadPDF(outputPath, `invoices/${filename}`)
     console.log("upload done")
