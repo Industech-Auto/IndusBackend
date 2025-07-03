@@ -28,9 +28,7 @@ async function makePublic(filePath) {
   const file = bucket.file(filePath)
   await file.makePublic()
 
-  return {
-    publicURL: `https://storage.googleapis.com/${bucket.name}/${filePath}`,
-  }
+  return `https://storage.googleapis.com/${bucket.name}/${filePath}`
 }
 
 module.exports = { uploadPDF, makePublic }
