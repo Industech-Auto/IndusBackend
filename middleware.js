@@ -12,7 +12,7 @@ const requireAdminAuth = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.SUPABASE_JWT_SECRET)
     console.log("decoded: ", decoded)
-    if (decoded.role !== "admin") {
+    if (decoded.user_metadata.role !== "admin") {
       return res
         .status(403)
         .send({ error: "Forbidden: Insufficient privileges" })
@@ -25,4 +25,3 @@ const requireAdminAuth = (req, res, next) => {
 }
 
 module.exports = { requireAdminAuth }
-
