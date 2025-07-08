@@ -17,6 +17,7 @@ adminRouter.post("/register-user", requireAdminAuth, async (req, res) => {
     const { data, error } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
+      email_confirm: true,
       app_metadata: { name, role },
     })
 
