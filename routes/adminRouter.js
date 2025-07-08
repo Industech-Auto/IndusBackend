@@ -78,3 +78,5 @@ adminRouter.delete("/user/:id", requireAdminAuth, async (req, res) => {
       .json({ error: "Failed to delete user.", details: error.message })
   }
 })
+
+module.exports = adminRouter
