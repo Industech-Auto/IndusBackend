@@ -1,5 +1,5 @@
 const { Router } = require("express")
-const { requireAdminAuth } = require("./middleware")
+const { requireAdminAuth } = require("../middleware")
 
 const adminRouter = Router()
 
