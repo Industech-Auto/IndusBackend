@@ -18,6 +18,7 @@ app.use(cors())
 app.use(express.json())
 app.use("/pdfs", express.static("./saved_pdfs"))
 
+app.use("/api/admin", adminRouter)
 app.post("/api/admin/register-user", requireAdminAuth, async (req, res) => {
   const { email, password, name, role } = req.body
 
