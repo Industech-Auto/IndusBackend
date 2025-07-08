@@ -17,7 +17,7 @@ adminRouter.post("/register-user", requireAdminAuth, async (req, res) => {
     const { data, error } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
-      user_metadata: { name, role },
+      app_metadata: { name, role },
     })
 
     if (error) {
@@ -48,8 +48,8 @@ adminRouter.get("/users", requireAdminAuth, async (req, res) => {
     const users = data.users.map((user) => ({
       id: user.id,
       email: user.email,
-      name: user.user_metadata.name,
-      role: user.user_metadata.role,
+      name: user.app_metadata.name,
+      role: user.app_metadata.role,
     }))
 
     res.status(200).json(users)
