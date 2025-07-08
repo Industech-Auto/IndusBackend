@@ -1,5 +1,6 @@
 const { Router } = require("express")
 const { requireAdminAuth } = require("../middleware")
+const supabaseAdmin = require("../supabaseClient")
 
 const adminRouter = Router()
 

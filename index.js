@@ -9,7 +9,6 @@ require("dotenv").config()
 const { getDetails, formatDateIST } = require("./getInvoiceDetails")
 const fs = require("fs")
 const cors = require("cors")
-const supabaseAdmin = require("./supabaseClient")
 const adminRouter = require("./routes/adminRouter")
 
 const app = express()
