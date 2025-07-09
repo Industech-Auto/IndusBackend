@@ -914,7 +914,7 @@ function generateTaxAnalysis(doc, data, y) {
 
   doc.font("Helvetica").text(calculated.taxAmountInWords, margin, y + 12)
 
-  return (y = 25)
+  return y + 25
 }
 
 function toWords(num) {
