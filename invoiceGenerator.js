@@ -46,7 +46,20 @@ function generateInvoicePDF(data, outputPath) {
       y = generateContinuationHeader(doc, data, y, true)
     }
     // Draw the tax analysis section.
-    generateTaxAnalysis(doc, calculatedData, y + 15)
+    const finalY = generateTaxAnalysis(doc, calculatedData, y + 15)
+
+    doc
+      .font("Helvetica-Oblique")
+      .fontSize(9)
+      .text(
+        "This is a computer generated invoice",
+        doc.page.margins.left,
+        finalY, // Use the final Y position
+        {
+          align: "center",
+          width: doc.page.width - doc.page.margins.left * 2,
+        },
+      )
 
     doc.end()
     stream.on("finish", () => resolve())
@@ -900,6 +913,8 @@ function generateTaxAnalysis(doc, data, y) {
   doc.font("Helvetica-Bold").text("Tax Amount (in words):", margin, y)
 
   doc.font("Helvetica").text(calculated.taxAmountInWords, margin, y + 12)
+
+  return (y = 25)
 }
 
 function toWords(num) {
