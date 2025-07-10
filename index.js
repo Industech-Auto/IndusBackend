@@ -10,6 +10,7 @@ const { getDetails, formatDateIST } = require("./getInvoiceDetails")
 const fs = require("fs")
 const cors = require("cors")
 const adminRouter = require("./routes/adminRouter")
+const getGoogleReviews = require("./services/getGoogleReviews")
 
 const app = express()
 
@@ -18,6 +19,18 @@ app.use(express.json())
 app.use("/pdfs", express.static("./saved_pdfs"))
 
 app.use("/api/admin", adminRouter)
+
+app.get("/api/google-reviews", async (req, res) => {
+  const PLACE_ID = "ChIJMZ9YzabFADsRkYuobf0P7Ug"
+  const API_KEY = process.env.GOOGLE_API_KEY
+
+  try {
+    const reviews = await getGoogleReviews(PLACE_ID, API_KEY, 4)
+    res.json(reviews)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
 
 const QUOTATION_DIRECTORY_PATH = path.join(__dirname, "saved_quotation_pdfs")
 const INVOICE_DIRECTORY_PATH = path.join(__dirname, "saved_invoice_pdfs")
