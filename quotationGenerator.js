@@ -78,10 +78,10 @@ function generateQuotationPDF(data, outputPath) {
     doc.font("Helvetica-Bold")
     doc.text("S.No", 27, tableTop)
     doc.text("Material Description", 61, tableTop)
-    doc.text("HSN", 245, tableTop)
-    doc.text("Qty", 305, tableTop)
-    doc.text("Unit Price", 395, tableTop, { width: 60, align: "right" })
-    doc.text("Amount", 485, tableTop, { width: 60, align: "right" })
+    doc.text("HSN", 330, tableTop)
+    doc.text("Qty", 380, tableTop)
+    doc.text("Unit Price", 430, tableTop, { width: 60, align: "right" })
+    doc.text("Amount", 500, tableTop, { width: 80, align: "right" })
     doc
       .strokeColor("#000000")
       .moveTo(25, tableTop + 15)
@@ -93,9 +93,8 @@ function generateQuotationPDF(data, outputPath) {
 
     for (let i = 0; i < data.items.length; i++) {
       const item = data.items[i]
-      const descriptionWidth = 184
       const rowHeight = doc.heightOfString(item.name, {
-        width: descriptionWidth,
+        width: 259,
       })
 
       console.log(`Item ${i + 1}: y=${doc.y}, rowHeight=${rowHeight}`)
@@ -103,23 +102,23 @@ function generateQuotationPDF(data, outputPath) {
 
       const yStart = doc.y
       doc.text(`${i + 1}`, 29, yStart)
-      doc.text(item.name, 61, yStart, { width: descriptionWidth })
-      doc.text(item.hsn, 245, yStart)
-      doc.text(item.qty.toString(), 305, yStart)
-      doc.text(`Rs. ${item.unitPrice.toFixed(2)}`, 385, yStart, {
-        width: 60,
+      doc.text(item.name, 61, yStart, { width: 259 })
+      doc.text(item.hsn, 330, yStart)
+      doc.text(item.qty.toString(), 380, yStart)
+      doc.text(`Rs. ${item.unitPrice.toFixed(2)}`, 420, yStart, {
+        width: 70,
         align: "right",
       })
-      doc.text(`Rs. ${item.amount.toFixed(2)}`, 475, yStart, {
-        width: 60,
+      doc.text(`Rs. ${item.amount.toFixed(2)}`, 500, yStart, {
+        width: 80,
         align: "right",
       })
 
       doc.y += rowHeight
       doc
         .strokeColor("#e0e0e0")
-        .moveTo(25, doc.y - 2)
-        .lineTo(585, doc.y - 2)
+        .moveTo(25, doc.y - 8)
+        .lineTo(585, doc.y - 8)
         .stroke()
     }
 
@@ -156,13 +155,13 @@ function generateQuotationPDF(data, outputPath) {
     doc.y += 5
     doc
       .font("Helvetica")
-      .text(`In Words: ${data.totalInWords}`, 50, doc.y, { width: 510 })
+      .text(`In Words: ${data.totalInWords}`, 25, doc.y, { width: 510 })
 
     doc.y += 7
     doc
       .fontSize(10)
       .font("Helvetica-Bold")
-      .text("Terms and Conditions:", 50, doc.y)
+      .text("Terms and Conditions:", 25, doc.y)
     doc.y += 5
     doc.font("Helvetica")
 
@@ -172,7 +171,7 @@ function generateQuotationPDF(data, outputPath) {
         const termHeight = doc.heightOfString(termText, { width: 495 }) - 10
         console.log(`Term ${idx + 1}: y=${doc.y}, height=${termHeight}`)
         ensureSpace(termHeight)
-        doc.text(termText, 65, doc.y, { width: 495 })
+        doc.text(termText, 50, doc.y, { width: 495 })
         doc.y += termHeight
       })
     }
