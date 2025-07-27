@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
 function sendMail(customerMail, filename, filepath, sub = true) {
   return new Promise((resolve, reject) => {
     const mailOptions = {
-      from: "abinyt1234@gmail.com",
+      from: "sales@industechautomations.in",
       to: customerMail,
       subject: sub
         ? "Quotation from IndusTech Automations"

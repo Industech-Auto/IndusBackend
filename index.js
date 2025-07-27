@@ -54,7 +54,7 @@ app.post("/genquotation", async (req, res) => {
 
     console.log("Checking file before uploadPDF:", fs.existsSync(outputPath))
     await uploadPDF(outputPath, `quotations/${filename}`)
-    //makePublic(`quotations/${filename}`)
+    makePublic(`quotations/${filename}`)
     res.status(200).send({ status: "Job received" })
   } catch (err) {
     console.error("Job processing failed:", err)
