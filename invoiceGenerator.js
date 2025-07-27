@@ -795,7 +795,7 @@ function generateTaxAnalysis(doc, data, y) {
   doc.font("Helvetica-Bold").fontSize(8)
 
   subHeaders.forEach((subHeader, i) => {
-    doc.text(subHeader, currentX, headerY + 18, {
+    doc.text(subHeader, currentX, headerY + 21.5, {
       width: colWidths[i + 2],
 
       align: "center",
