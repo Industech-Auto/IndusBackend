@@ -41,7 +41,7 @@ app.post("/genquotation", async (req, res) => {
   }
 
   const job = { content: req.body }
-  const sanitizedName = job.content.customer?.name
+  const sanitizedName = job.content.recipientName
     ?.replace(/[\\/:"*?<>|]/g, "_")
     .replace(/\s+/g, "_")
   const filename = `qu-${sanitizedName}-${formatDateIST(Date.now())}.pdf`
