@@ -57,7 +57,7 @@ app.post("/genquotation", async (req, res) => {
     makePublic(`quotations/${filename}`)
     res.status(200).send({ status: "Job received" })
   } catch (err) {
-    console.error("Job processing failed:", err)
+    console.error("Job processing failed: ", err)
   }
 })
 
