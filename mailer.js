@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer")
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  service: "Zoho",
   auth: {
     user: "sales@industechautomations.in",
     pass: process.env.MAIL_PASS,
